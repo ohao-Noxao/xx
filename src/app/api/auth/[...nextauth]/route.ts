@@ -1,7 +1,13 @@
 import NextAuth, { type NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { createHash } from 'crypto'
 import { db } from '@/lib/db'
+
+async function sha256(message: string): Promise<string> {
+  const msgBuffer = new TextEncoder().encode(message)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -25,7 +31,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const [salt, storedHash] = user.password.split(':')
-        const inputHash = createHash('sha256').update(credentials.password + salt).digest('hex')
+        const inputHash = await sha256(credentials.password + salt)
         const isValid = inputHash === storedHash
         if (!isValid) {
           throw new Error('密码错误')

@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createHash, randomBytes } from 'crypto'
 import { db } from '@/lib/db'
 
-function hashPassword(password: string, salt: string): string {
-  return createHash('sha256').update(password + salt).digest('hex')
+async function sha256(message: string): Promise<string> {
+  const msgBuffer = new TextEncoder().encode(message)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+function generateSalt(): string {
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
 }
 
 export async function POST(request: NextRequest) {
@@ -51,9 +59,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Hash password with salt
-    const salt = randomBytes(16).toString('hex')
-    const hashedPassword = salt + ':' + hashPassword(password, salt)
+    // Hash password with salt using Web Crypto API (Edge runtime compatible)
+    const salt = generateSalt()
+    const hashedPassword = salt + ':' + await sha256(password + salt)
 
     // Create user
     const user = await db.user.create({
