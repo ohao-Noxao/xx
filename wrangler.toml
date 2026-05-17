@@ -1,0 +1,6 @@
+name = "xiaoxin-fan-site"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+NEXTAUTH_URL = "https://xiaoxinxinxin.pages.dev"
