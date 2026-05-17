@@ -1,0 +1,16 @@
+{
+  "name": "小新粉丝圈",
+  "short_name": "小新粉丝圈",
+  "description": "小新粉丝专属社区",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fce7f3",
+  "theme_color": "#ec4899",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

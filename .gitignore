@@ -1,0 +1,60 @@
+# dependencies
+node_modules
+/.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# env files
+.env
+.env.local
+.env.*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# logs
+*.log
+
+# database
+db/*.db
+db/*.db-journal
+
+# sandbox-specific (不需要部署的文件)
+.claude
+.z-ai-config
+/skills/
+worklog.md
+launcher.sh
+daemon.sh
+keep-alive.sh
+watchdog.sh
+start-server.sh
+run-dev.sh
+server.pid
+dev.log
+Caddyfile
+/download/
+/upload/
+/mini-services/
+/examples/
+/agent-ctx/
+.zscripts/

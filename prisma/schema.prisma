@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model FanPost {
+  id         String   @id @default(cuid())
+  authorName String   @default("匿名粉丝")
+  content    String
+  imageUrl   String?
+  likes      Int      @default(0)
+  pinned     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  comments FanComment[]
+}
+
+model FanComment {
+  id         String   @id @default(cuid())
+  postId     String
+  authorName String   @default("匿名粉丝")
+  content    String
+  createdAt  DateTime @default(now())
+
+  post FanPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Archive {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  date      String
+  imageUrl  String?
+  category  String   @default("日常")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  username  String
+  content   String
+  avatar    String?
+  createdAt DateTime @default(now())
+}
+
+model SiteVisit {
+  id        String   @id @default(cuid())
+  visitedAt DateTime @default(now())
+  userAgent String?
+  path      String   @default("/")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  email     String?
+  password  String
+  avatar    String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
