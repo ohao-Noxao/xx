@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 
+export const runtime = 'edge'
+
 // Cache for search results (5 minutes)
 const searchCache = new Map<string, { data: unknown; timestamp: number }>()
 const CACHE_DURATION = 5 * 60 * 1000

@@ -1,6 +1,8 @@
 import { db } from '@/lib/db'
 import { NextResponse } from 'next/server'
 
+export const runtime = 'edge'
+
 export async function POST(request: Request) {
   try {
     const { searchParams } = new URL(request.url)

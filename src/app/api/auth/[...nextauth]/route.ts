@@ -2,6 +2,8 @@ import NextAuth, { type NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { db } from '@/lib/db'
 
+export const runtime = 'edge'
+
 async function sha256(message: string): Promise<string> {
   const msgBuffer = new TextEncoder().encode(message)
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)

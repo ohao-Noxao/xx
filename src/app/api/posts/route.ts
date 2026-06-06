@@ -1,6 +1,8 @@
 import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 
+export const runtime = 'edge'
+
 export async function GET() {
   try {
     // Fetch pinned posts first, then regular posts, each group sorted by createdAt desc

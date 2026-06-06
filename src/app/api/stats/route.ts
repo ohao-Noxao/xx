@@ -1,6 +1,8 @@
 import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 
+export const runtime = 'edge'
+
 export async function GET() {
   try {
     const now = new Date()
