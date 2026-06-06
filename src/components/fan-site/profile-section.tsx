@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/components/auth-provider'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Camera, Edit3, User, Phone, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -30,16 +30,16 @@ function maskPhone(phone: string): string {
 }
 
 export function ProfileSection({ onLoginClick }: ProfileSectionProps) {
-  const { data: session, status, update } = useSession()
+  const { user, status, logout, updateSession } = useAuth()
   const [editOpen, setEditOpen] = useState(false)
   const [editName, setEditName] = useState('')
   const [editAvatar, setEditAvatar] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const { toast } = useToast()
 
-  const userName = session?.user?.name || ''
-  const userAvatar = (session?.user as { avatar?: string })?.avatar || ''
-  const userPhone = (session?.user as { phone?: string })?.phone || ''
+  const userName = user?.name || ''
+  const userAvatar = user?.avatar || ''
+  const userPhone = user?.phone || ''
 
   const handleEditOpen = () => {
     setEditName(userName)
@@ -61,8 +61,8 @@ export function ProfileSection({ onLoginClick }: ProfileSectionProps) {
 
       if (res.ok) {
         const data = await res.json()
-        // Update the session
-        await update({
+        // Update the session locally
+        updateSession({
           name: data.name,
           avatar: data.avatar,
         })
@@ -79,8 +79,13 @@ export function ProfileSection({ onLoginClick }: ProfileSectionProps) {
     }
   }
 
+  const handleLogout = async () => {
+    await logout()
+    toast({ title: '已退出登录' })
+  }
+
   // Not logged in state
-  if (status !== 'authenticated' || !session?.user) {
+  if (status !== 'authenticated' || !user) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -152,14 +157,23 @@ export function ProfileSection({ onLoginClick }: ProfileSectionProps) {
             </div>
           )}
 
-          <Button
-            onClick={handleEditOpen}
-            className="bg-white/10 dark:bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 text-white/80 dark:text-white/60 border border-white/20 dark:border-white/10 rounded-xl gap-2 mt-2"
-            variant="ghost"
-          >
-            <Edit3 className="w-4 h-4" />
-            编辑资料
-          </Button>
+          <div className="flex items-center justify-center gap-2">
+            <Button
+              onClick={handleEditOpen}
+              className="bg-white/10 dark:bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 text-white/80 dark:text-white/60 border border-white/20 dark:border-white/10 rounded-xl gap-2"
+              variant="ghost"
+            >
+              <Edit3 className="w-4 h-4" />
+              编辑资料
+            </Button>
+            <Button
+              onClick={handleLogout}
+              className="bg-white/10 dark:bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 text-white/80 dark:text-white/60 border border-white/20 dark:border-white/10 rounded-xl gap-2"
+              variant="ghost"
+            >
+              退出登录
+            </Button>
+          </div>
         </div>
       </div>
 

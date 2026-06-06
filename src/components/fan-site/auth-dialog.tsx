@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { useAuth } from '@/components/auth-provider'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LogIn, UserPlus, LogOut, Phone, Lock, User, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -23,6 +23,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const { login } = useAuth()
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,12 +34,8 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     }
     setIsLoading(true)
     try {
-      const result = await signIn('credentials', {
-        phone: phone.trim(),
-        password,
-        redirect: false,
-      })
-      if (result?.error) {
+      const result = await login(phone.trim(), password)
+      if (result.error) {
         toast({ title: result.error, variant: 'destructive' })
       } else {
         toast({ title: '登录成功！', description: '欢迎回来' })
@@ -117,6 +114,7 @@ function RegisterForm({ onSuccess, onSwitchToLogin }: { onSuccess: () => void; o
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const { register } = useAuth()
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,25 +142,13 @@ function RegisterForm({ onSuccess, onSwitchToLogin }: { onSuccess: () => void; o
 
     setIsLoading(true)
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          phone: phone.trim(),
-          password,
-        }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast({ title: data.error, variant: 'destructive' })
-        return
+      const result = await register(name.trim(), phone.trim(), password)
+      if (result.error) {
+        toast({ title: result.error, variant: 'destructive' })
+      } else {
+        toast({ title: '注册成功！', description: '欢迎加入粉丝圈' })
+        onSuccess()
       }
-
-      toast({ title: '注册成功！', description: '请登录' })
-      onSwitchToLogin()
     } catch {
       toast({ title: '注册失败', description: '请稍后重试', variant: 'destructive' })
     } finally {
@@ -260,8 +246,8 @@ function RegisterForm({ onSuccess, onSwitchToLogin }: { onSuccess: () => void; o
 
 // User avatar indicator shown when logged in
 function UserAvatar({ onLogout }: { onLogout: () => void }) {
-  const { data: session } = useSession()
-  const avatar = (session?.user as { avatar?: string })?.avatar || ''
+  const { user } = useAuth()
+  const avatar = user?.avatar || ''
 
   return (
     <div className="flex items-center gap-2">
@@ -269,7 +255,7 @@ function UserAvatar({ onLogout }: { onLogout: () => void }) {
         {avatar || <User className="w-4 h-4" />}
       </div>
       <span className="text-white/80 dark:text-white/60 text-sm font-medium max-w-[80px] truncate hidden sm:block">
-        {session?.user?.name || '测试'}
+        {user?.name || '测试'}
       </span>
       <button
         onClick={onLogout}
@@ -283,7 +269,7 @@ function UserAvatar({ onLogout }: { onLogout: () => void }) {
 }
 
 export function AuthDialog({ externalOpen, onExternalOpenChange }: { externalOpen?: boolean; onExternalOpenChange?: (open: boolean) => void } = {}) {
-  const { data: session, status } = useSession()
+  const { status, logout } = useAuth()
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState<AuthMode>('login')
   const { toast } = useToast()
@@ -296,7 +282,7 @@ export function AuthDialog({ externalOpen, onExternalOpenChange }: { externalOpe
   }
 
   const handleLogout = async () => {
-    await signOut({ redirect: false })
+    await logout()
     toast({ title: '已退出登录' })
   }
 
@@ -305,7 +291,7 @@ export function AuthDialog({ externalOpen, onExternalOpenChange }: { externalOpe
   }
 
   // When logged in, show user avatar and logout button
-  if (status === 'authenticated' && session?.user) {
+  if (status === 'authenticated') {
     return <UserAvatar onLogout={handleLogout} />
   }
 

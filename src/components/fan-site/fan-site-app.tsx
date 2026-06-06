@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef, useMemo, useSyncExternalStore
 import { motion, AnimatePresence } from 'framer-motion'
 import { Home, BookOpen, MessageCircle, Sparkles, Sun, Moon, User } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/components/auth-provider'
 import { ProfileHeader } from '@/components/fan-site/profile-header'
 import { PostFeed } from '@/components/fan-site/post-feed'
 import { PostBox } from '@/components/fan-site/post-box'
@@ -141,7 +141,7 @@ const tabVariants = {
 }
 
 export function FanSiteApp() {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<TabType>('homepage')
   const [postRefreshKey, setPostRefreshKey] = useState(0)
   const [scrollY, setScrollY] = useState(0)
@@ -150,8 +150,8 @@ export function FanSiteApp() {
   const mainRef = useRef<HTMLDivElement>(null)
 
   // Auth-derived user info for child components
-  const userName = session?.user?.name || ''
-  const userAvatar = (session?.user as { avatar?: string })?.avatar || ''
+  const userName = user?.name || ''
+  const userAvatar = user?.avatar || ''
 
   useEffect(() => {
     const handleScroll = () => {

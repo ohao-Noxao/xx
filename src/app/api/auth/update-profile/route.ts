@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { getSession } from '@/lib/auth'
 import { db } from '@/lib/db'
 
 export const runtime = 'edge'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const user = await getSession()
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json(
         { error: '请先登录' },
         { status: 401 }
@@ -43,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     const updatedUser = await db.user.update({
-      where: { id: session.user.id },
+      where: { id: user.id },
       data: updateData,
     })
 
